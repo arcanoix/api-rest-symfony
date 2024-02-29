@@ -1,16 +1,16 @@
 <?php
-// api/src/Entity/Product.php
+
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\{ApiResource, GetCollection, Get, Post, Put, Delete};
+use App\Dto\ProductDto;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
-#[ApiResource]
-class Product // The class name will be used to name exposed resources
+#[ApiResource()]
+class Product 
 {
     #[ORM\Id, ORM\Column, ORM\GeneratedValue]
     private ?int $id = null;
@@ -29,8 +29,20 @@ class Product // The class name will be used to name exposed resources
     #[Assert\Range(minMessage: 'The price must be superior to 0.', min: 0)]
     public float $price = -1.0;
 
-    #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'products')]
-    public ?Category $category = null;
+    #[ORM\OneToOne(targetEntity: Category::class, inversedBy: 'products', cascade: ['persist'])]
+    private $category;
+
+    public function getCategory(): ?Category
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?Category $category): self
+    {
+        $this->category = $category;
+
+        return $this;
+    }
 
 
     public function getId(): ?int
@@ -74,20 +86,22 @@ class Product // The class name will be used to name exposed resources
         return $this;
     }
 
-    public function getCategory()
-    {
-                return $this->category;
-    }
-
-    public function setCategory(Category $category)
-    {
-                $category->addProduct($this);
-                return $this->category = $category;
-    }
 
     public function __construct()
     {
                 $this->createdAt = new DateTime();
     }
+
     
+    public static function create(string $name, string $description, float $price, Category $category): Product
+    {
+        
+        $product = new Product();
+        $product->setName($name);
+        $product->setDescription($description);
+        $product->setPrice($price);
+        $product->setCategory($category);
+        
+        return $product;
+    }
 }

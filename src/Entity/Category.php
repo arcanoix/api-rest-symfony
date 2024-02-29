@@ -4,13 +4,15 @@ namespace App\Entity;
 
 use App\Repository\CategoryRepository;
 use Doctrine\ORM\Mapping as ORM;
-use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\{ApiResource, Get, GetCollection, Post, Put, Delete};
+use App\Dto\CategoryDto;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
-#[ApiResource]
+#[ApiResource()]
 class Category
 {
     #[ORM\Id]
@@ -19,12 +21,13 @@ class Category
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $name = null;
+    public string $name;
 
     #[ORM\Column(name: "created_at", type: "datetime", nullable: true)]
-    public DateTime|null $createdAt = null;
+    private DateTime|null $createdAt = null;
 
-    
+     
+    #[Groups("read")]
     #[ORM\OneToMany(targetEntity: Product::class, mappedBy: 'category')]
     private $products;
 
@@ -45,6 +48,11 @@ class Category
         return $this;
     }
 
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
     public function __construct()
     {
         $this->products = new ArrayCollection();
@@ -60,15 +68,22 @@ class Category
         return $this;
     }
 
+     /**
+     * @return Collection<int, Product>
+     */
+    public function getProducts(): Collection
+    {
+        return $this->products;
+    }
+
     public function removeProduct(Product $product): self
     {
-        //$category->product = null;
+        
         $this->products->removeElement($product);
 
         if ($this->products->removeElement($product)) {
-            // set the owning side to null (unless already changed)
-            if ($product->category === $this){
-                $product->category = null;
+            if ($product->getCategory() === $this){
+                $product->setCategory(null);
             }
         }
 

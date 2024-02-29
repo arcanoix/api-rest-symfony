@@ -5,7 +5,6 @@ namespace App\Dto;
 class CategoryDto
 {
     private string $name;
-    private string $createdAt;
 
     static function of(string $name): CategoryDto
     {
@@ -15,20 +14,11 @@ class CategoryDto
     }
 
     /**
-     * @param string $title
+     * @param string $name
      */
     public function setName(string $name): self
     {
         $this->name = $name;
-        return $this;
-    }
-
-    /**
-     * @param string $content
-     */
-    public function setCreatedAt(string $createdAt): self
-    {
-        $this->createdAt = $createdAt;
         return $this;
     }
 
@@ -40,12 +30,5 @@ class CategoryDto
         return $this->name;
     }
 
-    /**
-     * @return string
-     */
-    public function getCreatedAt(): string
-    {
-        return $this->createdAt;
-    }
 
 }

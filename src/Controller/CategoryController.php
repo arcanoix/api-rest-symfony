@@ -102,7 +102,7 @@ class CategoryController extends AbstractController
 
         if(!$category)
         {
-            return $this->json(['message' => 'Category not found'], 404);
+            return new JsonResponse(['message' => 'Category not found'], Response::HTTP_NOT_FOUND, ["Content-Type" => "application/json"]);
         }
 
         $entityManager->remove($category);
