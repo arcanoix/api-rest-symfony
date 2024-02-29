@@ -29,7 +29,7 @@ class Product
     #[Assert\Range(minMessage: 'The price must be superior to 0.', min: 0)]
     public float $price = -1.0;
 
-    #[ORM\OneToOne(targetEntity: Category::class, inversedBy: 'products', cascade: ['persist'])]
+    #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'products', cascade: ['persist'])]
     private $category;
 
     public function getCategory(): ?Category
