@@ -4,15 +4,17 @@ namespace App\Entity;
 
 use App\Repository\CategoryRepository;
 use Doctrine\ORM\Mapping as ORM;
-use ApiPlatform\Metadata\{ApiResource, Get, GetCollection, Post, Put, Delete};
-use App\Dto\CategoryDto;
+use ApiPlatform\Metadata\{ApiResource};
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
-#[ApiResource()]
+#[ApiResource(
+    normalizationContext: ['groups' => ['read']],
+    denormalizationContext: ['groups' => ['write']],
+    )]
 class Category
 {
     #[ORM\Id]
@@ -21,13 +23,15 @@ class Category
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
+    #[Groups(['read', 'write'])]
     public string $name;
 
     #[ORM\Column(name: "created_at", type: "datetime", nullable: true)]
     private DateTime|null $createdAt = null;
 
      
-    #[Groups("read")]
+    #[Groups(['read'])]
     #[ORM\OneToMany(targetEntity: Product::class, mappedBy: 'category')]
     private $products;
 

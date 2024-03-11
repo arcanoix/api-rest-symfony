@@ -2,14 +2,17 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\{ApiResource, GetCollection, Get, Post, Put, Delete};
-use App\Dto\ProductDto;
+use ApiPlatform\Metadata\{ApiResource};
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
-#[ApiResource()]
+#[ApiResource(
+    normalizationContext: ['groups' => ['read']],
+    denormalizationContext: ['groups' => ['write']]
+    )]
 class Product 
 {
     #[ORM\Id, ORM\Column, ORM\GeneratedValue]
@@ -17,19 +20,25 @@ class Product
 
     #[ORM\Column] 
     #[Assert\NotBlank]
+    #[Groups(['read', 'write'])]
     public string $name = '';
 
     #[ORM\Column(type: 'text')]
+    #[Groups(['read', 'write'])]
     public string $description = '';
 
     #[ORM\Column(name: "created_at", type: "datetime", nullable: true)]
+    #[Groups(['read'])]
     public DateTime|null $createdAt = null;
 
     #[ORM\Column]
     #[Assert\Range(minMessage: 'The price must be superior to 0.', min: 0)]
+    #[Assert\NotBlank]
+    #[Groups(['read', 'write'])]
     public float $price = -1.0;
 
     #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'products', cascade: ['persist'])]
+    #[Groups(['read', 'write'])]
     private $category;
 
     public function getCategory(): ?Category
